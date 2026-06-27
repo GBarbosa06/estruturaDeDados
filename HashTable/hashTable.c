@@ -3,9 +3,59 @@
 
 #define TAM 31
 
-void inicializarTabela(int t[]) {
+typedef struct No{
+	int chave;
+	struct No *proximo;
+}No;
+
+typedef struct{
+	No *inicio;
+	int tam;
+}Lista;
+
+void inicializarLista(Lista *l){
+	l->inicio = NULL;
+	l->tam = 0;
+}
+
+void inserirNaLista(Lista *l, int valor){
+	No *n = malloc(sizeof(No));
+	if (n)
+	{
+		n->chave = valor;
+		n->proximo = l->inicio;
+		l->inicio = n;
+		l->tam++;
+	}
+	else
+	{
+		printf("\nErro ao alocar memoria\n");
+	}
+}
+
+int buscarNaLista(Lista *l, int chaveBuscada){
+	No *aux = l->inicio;
+	while(aux && aux->chave != chaveBuscada){
+		aux = aux->proximo;
+	}
+	if(aux){
+		return aux->chave;
+	}
+	return 0;
+}
+
+void imprimirLista(Lista *l){
+	No *aux = l->inicio;
+	printf("Tam: %d: ", l->tam);
+	while (aux){
+		printf("%d ", aux->chave);
+		aux = aux->proximo;
+	}
+}
+
+void inicializarTabela(Lista t[]) {
 	for(int i = 0; i < TAM; i++){
-		t[i] = 0;
+		inicializarLista(&t[i]);
 	}
 }
 
@@ -13,37 +63,27 @@ int funcaoHash(int chave) {
 	return chave % TAM;
 }
 
-void inserir(int t[], int valor){
+void inserir(Lista t[], int valor){
 	int id = funcaoHash(valor);
-	while(t[id] != 0){
-		id = funcaoHash(id+1); 
-		//aqui define o id entre 0 e TAM(31), procurando posições vazias
-	}
-	t[id] = valor;
+	inserirNaLista(&t[id], valor);
 }
 
-int busca(int t[], int chave){
+int busca(Lista t[], int chave){
 	int id = funcaoHash(chave);
-	while(t[id] != 0){
-		if(t[id] == chave){
-			printf("\tIndice %d\n", id);
-			return t[id];
-		}
-		else{
-			id = funcaoHash(id+1);
-		}
-	}
-	return 0;
+	return buscarNaLista(&t[id], chave);
 }
 
-void imprimir(int t[]){
+void imprimir(Lista t[]){
 	for(int i = 0; i < TAM; i++){
-		printf("%d = %d\n", i, t[i]);
+		printf("%2d: ", i);
+		imprimirLista(&t[i]);
+		printf("\n");
 	}
 }
 
 int main() {
-	int tabela[TAM], opcao, valor, retorno;
+	int opcao, valor, retorno;
+	Lista tabela[TAM];
 	inicializarTabela(tabela);
 	
 	do{
